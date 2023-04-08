@@ -1,6 +1,7 @@
 package pl.kostrzynski.nonblockinglayershop.order;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -15,12 +16,14 @@ class OrderService {
 
     Mono<Long> addOrder(final Order order) {
 
-        order.setUsername(SecurityContextHolder.getContext().getAuthentication().getName());
-
-        final var orderJpaEntity = this.mapper.toEntity(order);
-
-        return this.repository.save(orderJpaEntity)
-                .map(OrderJpaEntity::getId);
+        return ReactiveSecurityContextHolder.getContext()
+                .map(e -> {
+                    final var name = e.getAuthentication().getName();
+                    order.setUsername(name);
+                    return this.mapper.toEntity(order);
+                })
+                .flatMap(this.repository::save)
+                .mapNotNull(OrderJpaEntity::getId);
     }
 
 }
