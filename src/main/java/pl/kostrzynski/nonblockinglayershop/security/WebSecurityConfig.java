@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import pl.kostrzynski.nonblockinglayershop.security.jwt.JwtAuthenticationFilter;
 import pl.kostrzynski.nonblockinglayershop.security.jwt.JwtService;
 
@@ -30,7 +31,7 @@ class WebSecurityConfig {
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/v1/api/auth/**")
+                        .pathMatchers("/v1/api/auth/**", "/actuator/**")
                         .permitAll()
                         .anyExchange()
                         .authenticated()
